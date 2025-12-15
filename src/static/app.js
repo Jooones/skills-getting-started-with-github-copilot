@@ -21,40 +21,59 @@ document.addEventListener("DOMContentLoaded", () => {
         const spotsLeft = details.max_participants - details.participants.length;
 
         // Participants section (render list with delete icon for each participant)
-        let participantsSection = "";
+        // Build participants section using DOM methods to prevent XSS
+        let participantsSection;
         if (details.participants.length > 0) {
-          const participantsItems = details.participants
-            .map(
-              (email) =>
-                `<li class="participant-item">${email} <button class="remove-participant" data-activity="${encodeURIComponent(
-                  name
-                )}" data-email="${encodeURIComponent(email)}" aria-label="Remove ${email}">✖</button></li>`
-            )
-            .join("");
+          participantsSection = document.createElement("div");
+          participantsSection.className = "participants-section";
 
-          participantsSection = `
-            <div class="participants-section">
-              <strong>Participants:</strong>
-              <ul class="participants-list">
-                ${participantsItems}
-              </ul>
-            </div>
-          `;
+          const strong = document.createElement("strong");
+          strong.textContent = "Participants:";
+          participantsSection.appendChild(strong);
+
+          const ul = document.createElement("ul");
+          ul.className = "participants-list";
+
+          details.participants.forEach((email) => {
+            const li = document.createElement("li");
+            li.className = "participant-item";
+
+            // Email text
+            const emailSpan = document.createElement("span");
+            emailSpan.textContent = email;
+            li.appendChild(emailSpan);
+
+            li.appendChild(document.createTextNode(" "));
+
+            // Remove button
+            const removeBtn = document.createElement("button");
+            removeBtn.className = "remove-participant";
+            removeBtn.setAttribute("data-activity", encodeURIComponent(name));
+            removeBtn.setAttribute("data-email", encodeURIComponent(email));
+            removeBtn.setAttribute("aria-label", `Remove ${email}`);
+            removeBtn.textContent = "✖";
+            li.appendChild(removeBtn);
+
+            ul.appendChild(li);
+          });
+
+          participantsSection.appendChild(ul);
         } else {
-          participantsSection = `
-            <div class="participants-section no-participants">
-              <em>No participants yet.</em>
-            </div>
-          `;
+          participantsSection = document.createElement("div");
+          participantsSection.className = "participants-section no-participants";
+          const em = document.createElement("em");
+          em.textContent = "No participants yet.";
+          participantsSection.appendChild(em);
         }
 
+        // Set activity card content (excluding participants section)
         activityCard.innerHTML = `
           <h4>${name}</h4>
           <p>${details.description}</p>
           <p><strong>Schedule:</strong> ${details.schedule}</p>
           <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
-          ${participantsSection}
         `;
+        activityCard.appendChild(participantsSection);
 
         activitiesList.appendChild(activityCard);
 
