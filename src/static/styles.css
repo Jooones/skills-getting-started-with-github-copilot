@@ -160,9 +160,31 @@ footer {
 .participants-list {
   margin: 8px 0 0 18px;
   padding: 0;
-  list-style-type: disc;
+  list-style-type: none; /* hide default bullets */
   color: #333;
   font-size: 15px;
+}
+
+.participant-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.remove-participant {
+  background: transparent;
+  border: none;
+  color: #c62828;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px 6px;
+  border-radius: 4px;
+}
+
+.remove-participant:hover {
+  background-color: rgba(198, 40, 40, 0.08);
 }
 
 .no-participants {
